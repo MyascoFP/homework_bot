@@ -1,14 +1,13 @@
-from http import HTTPStatus
-import re
-from turtle import home
-import requests
-import time
-import os
-from dotenv import load_dotenv
-import telegram
 import logging
-from exceptions import HTTPStatusNot200
+import os
+import time
+from http import HTTPStatus
 
+import requests
+import telegram
+from dotenv import load_dotenv
+
+from exceptions import HTTPStatusNot200
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -82,12 +81,12 @@ def parse_status(homework):
     """Проверяет ответ API."""
     homework_name = homework.get('homework_name')
     if 'homework_name' not in homework:
-        logging.error('homework_name is not a homework key')
+        logging.error('Homework_name is not a homework key')
         raise KeyError
 
     homework_status = homework.get('status')
     if 'status' not in homework:
-        logging.error('status is not a homework key')
+        logging.error('Status is not a homework key')
         raise KeyError
 
     if homework_status not in HOMEWORK_STATUSES.keys():
@@ -107,7 +106,7 @@ def check_tokens():
     ]
     for var in TOKENS_LIST:
         if var is None:
-            logging.critical(f'отсутствует токен {var}')
+            logging.critical(f'No token {var}')
             return False
     return True
 
@@ -128,7 +127,7 @@ def main():
             current_timestamp = int(time.time())
             time.sleep(RETRY_TIME)
         except Exception as error:
-            message = f'Сбой в работе программы: {error}'
+            message = f'Some problems: {error}'
             logging.exception(error)
             time.sleep(RETRY_TIME)
 

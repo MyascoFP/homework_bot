@@ -1,10 +1,13 @@
 from http import HTTPStatus
+import re
+from turtle import home
 import requests
 import time
 import os
 from dotenv import load_dotenv
 import telegram
 import logging
+from exceptions import HTTPStatusNot200
 
 
 logging.basicConfig(
@@ -54,7 +57,7 @@ def get_api_answer(current_timestamp):
         if response.status_code != HTTPStatus.OK:
             status_code = response.status_code
             logging.error(f'Status code is not 200: {status_code}')
-
+            raise HTTPStatusNot200
         else:
             return response.json()
     except Exception as error:
@@ -65,27 +68,34 @@ def get_api_answer(current_timestamp):
 def check_response(response):
     """Проверяет ответ API на корректность."""
     try:
-        homework = response['homeworks']
+        if type(response) is not dict:
+            raise TypeError
+        homework = response.get('homeworks')
+        if type(homework) is not list:
+            raise TypeError
         return homework
-    except TypeError:
-        logging.error('Problems with API')
+    except AttributeError:
+        pass
 
 
 def parse_status(homework):
     """Проверяет ответ API."""
-    try:
-        homework_name = homework[0].get('homework_name')
-        homework_status = homework[0].get('status')
+    homework_name = homework.get('homework_name')
+    if 'homework_name' not in homework:
+        logging.error('homework_name is not a homework key')
+        raise KeyError
 
-        verdict = HOMEWORK_STATUSES[homework_status]
+    homework_status = homework.get('status')
+    if 'status' not in homework:
+        logging.error('status is not a homework key')
+        raise KeyError
 
-        return f'Изменился статус проверки работы "{homework_name}". {verdict}'
-    except TypeError:
-        logging.error('Problems with API')
-    except IndexError:
-        pass
-    except KeyError:
+    if homework_status not in HOMEWORK_STATUSES.keys():
         logging.error('Status not in HOMEWORK_STATUSES')
+        raise ValueError
+
+    verdict = HOMEWORK_STATUSES[homework_status]
+    return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
 def check_tokens():
@@ -111,9 +121,10 @@ def main():
     while True:
         try:
             response = get_api_answer(current_timestamp)
-            homeworks = check_response(response)
-            message = parse_status(homeworks)
-            send_message(bot, message)
+            homework = check_response(response)
+            if homework:
+                message = parse_status(homework[0])
+                send_message(bot, message)
             current_timestamp = int(time.time())
             time.sleep(RETRY_TIME)
         except Exception as error:

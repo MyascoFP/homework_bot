@@ -36,7 +36,6 @@ HOMEWORK_STATUSES = {
 
 def send_message(bot, message):
     """Отправка сообщений в телеграм."""
-
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logging.info('Succesful send')
@@ -48,7 +47,6 @@ def send_message(bot, message):
 
 def get_api_answer(current_timestamp):
     """Делаем запрос и возвращаем ответ."""
-
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     try:
@@ -66,7 +64,6 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Проверяет ответ API на корректность."""
-
     try:
         homework = response['homeworks']
         return homework
@@ -75,6 +72,7 @@ def check_response(response):
 
 
 def parse_status(homework):
+    """Проверяет ответ API."""
     try:
         homework_name = homework[0].get('homework_name')
         homework_status = homework[0].get('status')

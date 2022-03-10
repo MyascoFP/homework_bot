@@ -9,9 +9,11 @@ from dotenv import load_dotenv
 
 from exceptions import HTTPStatusNot200
 
+ADDRESS = '\main.log'
+
 logging.basicConfig(
     level=logging.DEBUG,
-    filename=os.path.expanduser('~') + '\main.log',
+    filename=os.path.expanduser('~') + ADDRESS,
     format='%(asctime)s, %(levelname)s, %(message)s'
 )
 

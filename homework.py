@@ -11,7 +11,7 @@ from exceptions import HTTPStatusNot200
 
 logging.basicConfig(
     level=logging.DEBUG,
-    filename='main.log',
+    filename=os.path.expanduser('~') + '\main.log',
     format='%(asctime)s, %(levelname)s, %(message)s'
 )
 
@@ -41,7 +41,7 @@ def send_message(bot, message):
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logging.info('Succesful send')
     except telegram.error.BadRequest:
-        pass
+        logging.error('Wrong chat id token')
     except Exception as error:
         logging.exception(f'Cant send due to {error}')
 
@@ -89,7 +89,7 @@ def parse_status(homework):
         raise KeyError
 
     if homework_status not in HOMEWORK_STATUSES.keys():
-        logging.error('Status not in HOMEWORK_STATUSES')
+        logging.error(f'Status {homework_status} not in HOMEWORK_STATUSES')
         raise ValueError
 
     verdict = HOMEWORK_STATUSES[homework_status]
@@ -114,6 +114,10 @@ def main():
     """Основная логика работы бота."""
     if check_tokens():
         bot = telegram.Bot(token=TELEGRAM_TOKEN)
+        if bot.id:
+            logging.info('Bot initialize succesful')
+        else:
+            logging.info('Bot doesnt initialize')
         current_timestamp = int(time.time())
 
     while True:

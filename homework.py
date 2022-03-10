@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 from exceptions import HTTPStatusNot200
 
-ADDRESS = "\main.log"
+ADDRESS = r'\main.log'
 
 logging.basicConfig(
     level=logging.DEBUG,
